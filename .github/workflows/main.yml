@@ -25,12 +25,42 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      # Build front-end
+      - name: Build front-end
+        run: |
+          docker info
+          cd $GITHUB_WORKSPACE
+          ls -al
+          node -v
+          cd app
+          npm install
+          npm run build
+          mv build ../client
+
+      # Build back-end
+      - name: Build front-end
+        run: |
+          cd $GITHUB_WORKSPACE
+          ls -al
+          npm install
+          npm run build
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+
+      # Deploy the image
+      - shell: bash
+        env: 
+          HEROKU_API_KEY: ${{secrets.HEROKU_API_KEY}}
+          HEROKU_USERNAME: ${{secrets.HEROKU_USERNAME}}
+          HEROKU_APP_NAME: ${{secrets.HEROKU_APP_NAME}}
+        name: Deploy the image
+        run: |         
+          docker login --username=$HEROKU_USERNAME --password=$HEROKU_API_KEY registry.heroku.com
+          docker tag nodeapp registry.heroku.com/$HEROKU_APP_NAME/web
+          docker push registry.heroku.com/$HEROKU_APP_NAME/web                
+          curl https://cli-assets.heroku.com/install.sh | sh
+          heroku container:release web -a $HEROKU_APP_NAME

@@ -10,9 +10,13 @@ MAINTAINER qianjin.qin@qq.com
 COPY ./ /usr/src/app
 WORKDIR /usr/src/app
 
+RUN \
+  npm install && \
+  npm run build
+
 # Define default command.
 # CMD ["npm install && npm start"]
-CMD node dist/main
+CMD npm run start:prod
 
 # Expose ports.
 # EXPOSE 3000
